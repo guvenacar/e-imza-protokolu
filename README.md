@@ -37,6 +37,19 @@ Her iki modelde de tek kullanımlık anahtarlar sayesinde bir işlemin güvenlik
 
 ---
 
+### 🔐 Kriptografik Primitifler
+
+| Kullanım Amacı | Önerilen Algoritma | Standart |
+|---|---|---|
+| İmzalama (kullanıcı) | Ed25519 veya Dilithium3 | RFC 8032 / FIPS 204 |
+| İmzalama (CA/BTK) | Ed25519 veya Dilithium3 | RFC 8032 / FIPS 204 |
+| Şifreleme (KEM) | X25519 + HKDF + AES-256-GCM | RFC 7748 / RFC 5869 |
+| Hash | SHA-3-256 | FIPS 202 |
+
+> **Kuantum direnci:** Mevcut dağıtımda Ed25519 yeterlidir; kuantum tehdidi belirginleştiğinde Dilithium3'e geçiş donanım değişimi gerektirmez — yalnızca yazılım güncellemesi yeterlidir.
+
+---
+
 ### 🌟 Amaç ve Vizyon
 
 > **Tek Kullanımlık E-İmza (Single-Use Digital Signature)** modeli, Türkiye'de e-İmza altyapısını mobil, güvenli ve yaygın hale getirmeyi amaçlar.
@@ -126,6 +139,22 @@ Teknik detaylar, şifreleme yapıları, zaman damgası akışları ve NIST test 
 ➡️ [README_long.md](README_long.md)
 
 ---
+
+---
+
+---
+
+## ⚠️ Bilinen Sınırlamalar ve İyileştirme Yönergeleri (v1.1)
+
+| # | Sınırlama | Etki | Çözüm Yönü |
+|---|-----------|------|------------|
+| 1 | **CA sPriv'i biliyor** — CA imza anahtarını ürettiği için teorik olarak kullanıcı adına imza atabilir. İnkar edilemezlik (non-repudiation) zayıftır. | Hukuki geçerlilik | Kullanıcı kendi geçici anahtarını TEE'de üretsin, CA sadece doğrulasın ([GKDP](https://github.com/guvenacar/GKDP-Guvenli-Kimlik-Dogrulama-Protokolu) / [EIDA](https://github.com/guvenacar/EIDA) modeli) |
+| 2 | **Yazılımsal izolasyon** — Docker-benzeri izole alan donanımsal değildir. Kernel açığı uPriv'i açığa çıkarabilir. | Yüksek riskli işlemler | 3 seviyeli model: Seviye 1 (ARM TrustZone), Seviye 2 (TPM 2.0), Seviye 3 (yazılım — sadece test) |
+| 3 | **BTK durumlu** — Her jeton veritabanına yazılır, ölçeklenebilirlik sınırlıdır. | Uzun vadeli maliyet | Jeton TTL sonrası temizlenebilir; büyük ölçekte EIDA'nın stateless CA modeli değerlendirilebilir |
+| 4 | **CA korelasyonu** — CA her işlemde uPub'ı görür, tüm işlemleri tek kimliğe bağlayabilir. | Kullanıcı gizliliği | Kabul edilmiş risk (CA güvenilir taraftır); ileri seviyede ePub katmanı eklenebilir |
+| 5 | **Kuantum direnci** — Mevcut dokümanda belirtilmemişti. | Gelecek tehdidi | ✅ Yukarıdaki primitifler tablosu ile çözüldü |
+
+> **Not:** Bu sınırlamalar protokolü kullanılamaz kılmaz. Her biri bilinçli bir tasarım kararı veya aşamalı iyileştirme planının parçasıdır. Detaylı analiz için [README_long.md](README_long.md) Bölüm 7'ye bakınız.
 
 ---
 
